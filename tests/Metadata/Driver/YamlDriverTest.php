@@ -10,6 +10,7 @@ use JMS\Serializer\Metadata\PropertyMetadata;
 use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
 use JMS\Serializer\Tests\Fixtures\BlogPost;
 use JMS\Serializer\Tests\Fixtures\Person;
+use JMS\Serializer\Tests\Fixtures\PersonWithId;
 use Metadata\Driver\DriverInterface;
 use Metadata\Driver\FileLocator;
 
@@ -101,6 +102,16 @@ class YamlDriverTest extends BaseDriverTestCase
             ],
             $classNames
         );
+    }
+
+    public function testInlineForMixedProperty(): void
+    {
+        $m = $this->getDriver('mixed_complex_type')->loadMetadataForClass(new \ReflectionClass(PersonWithId::class));
+
+        $afterBeginText = $m->propertyMetadata['afterBeginText'];
+
+        self::assertInstanceOf(PropertyMetadata::class, $afterBeginText);
+        self::assertTrue($afterBeginText->inline);
     }
 
     /**

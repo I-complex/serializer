@@ -1,0 +1,15 @@
+JMS\Serializer\Tests\Fixtures\PersonWithId:
+    properties:
+        id:
+            type: string
+            expose: true
+    mixedproperties:
+        afterBeginText:
+            expose: true
+            access_type: public_method
+            serialized_name: afterBeginText
+            accessor:
+                getter: getAfterBeginText
+                setter: setAfterBeginText
+            xml_attribute: true
+            type: string

@@ -143,6 +143,10 @@ class YamlDriver extends AbstractFileDriver
                 $propertiesData[] = $propertySettings;
             }
         }
+        $mixedPropertyNames = [];
+        if (array_key_exists('mixedproperties', $config)) {
+            $mixedPropertyNames = array_keys($config['mixedproperties']);
+        }
 
         if (!$excludeAll) {
             foreach ($class->getProperties() as $property) {
@@ -151,10 +155,16 @@ class YamlDriver extends AbstractFileDriver
                 }
 
                 $pName = $property->getName();
-                $propertiesMetadata[] = new PropertyMetadata($name, $pName);
-                $propertiesData[] =  !empty($config['properties']) && true === array_key_exists($pName, $config['properties'])
-                    ? (array) $config['properties'][$pName]
-                    : null;
+                if (true !== in_array($pName, $mixedPropertyNames, true)) {
+                    $propertiesMetadata[] = new PropertyMetadata($name, $pName);
+                    $propertiesData[] =  !empty($config['properties']) && true === array_key_exists($pName, $config['properties'])
+                        ? (array) $config['properties'][$pName]
+                        : null;
+                } else {
+                    $mixedPropertyMetadata = new PropertyMetadata($name, $pName);
+                    $mixedPropertyMetadata->inline = true;
+                    $metadata->addPropertyMetadata($mixedPropertyMetadata);
+                }
             }
 
             foreach ($propertiesMetadata as $propertyKey => $pMetadata) {
@@ -164,6 +174,7 @@ class YamlDriver extends AbstractFileDriver
                     || isset($propertiesData[$propertyKey]);
 
                 $pConfig = $propertiesData[$propertyKey];
+
                 if (!empty($pConfig)) {
                     if (isset($pConfig['exclude'])) {
                         $isExclude = (bool) $pConfig['exclude'];
